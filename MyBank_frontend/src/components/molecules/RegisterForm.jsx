@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { login } from '../../stores/slices/authSlice';
 import Input from '../atoms/Input';
 import Button from '../atoms/Button';
+import { useNavigate } from 'react-router-dom';
 
-const LoginForm = () => {
+const RegisterForm = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -18,9 +16,10 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
 
     try {
-      const response = await fetch('http://localhost:8000/login', {
+      const response = await fetch('http://localhost:8000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -30,13 +29,15 @@ const LoginForm = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || 'Registration failed');
       }
 
-      dispatch(login(credentials.username));
-      navigate('/homepage');
+      setMessage('Registration successful! Please login.');
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     } catch (error) {
-      setError('Invalid credentials');
+      setError(error.message || 'Error occurred');
     }
   };
 
@@ -56,10 +57,11 @@ const LoginForm = () => {
         value={credentials.password}
         onChange={handleChange}
       />
-      <Button text="Login" onClick={() => {}} />
+      <Button text="Register" onClick={() => {}} />
+      {message && <p style={{ color: 'green' }}>{message}</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

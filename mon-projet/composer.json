@@ -14,10 +14,11 @@
         "nelmio/cors-bundle": "^2.5",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
-        "symfony/flex": "^2",
+        "symfony/flex": "^2.5",
         "symfony/framework-bundle": "7.2.*",
         "symfony/runtime": "7.2.*",
         "symfony/security-bundle": "7.2.*",
+        "symfony/twig-bundle": "7.2.*",
         "symfony/yaml": "7.2.*"
     },
     "config": {
@@ -59,7 +60,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+            "serve": "symfony serve -d --no-tls --port=8000"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -71,6 +73,7 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.0",
         "symfony/maker-bundle": "^1.62"
     }
 }
