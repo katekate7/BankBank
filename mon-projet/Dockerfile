@@ -1,39 +1,28 @@
-# Use the official PHP image with Apache
-FROM php:8.2-apache
+# Use the Jenkins inbound agent as the base image
+FROM jenkins/inbound-agent
 
-# Set working directory
-WORKDIR /var/www/html
+# Switch to the root user to install packages
+USER root
 
-# Install necessary dependencies
-RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    zip \
-    unzip \
-    git \
-    && docker-php-ext-install intl pdo pdo_mysql \
-    && a2enmod rewrite
+# Update the package list and install PHP
+RUN apt update && apt install -y php
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install additional PHP extensions
+RUN apt install -y php-curl php-xml zip unzip
 
-# Copy project files
-COPY . /var/www/html
+# Install the PHP mbstring extension
+RUN apt install -y php-mbstring
 
-# Copy the .env file to the container
-COPY .env /var/www/html/.env
+# Download the Composer installer script
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    # Verify the installer script's SHA-384 hash
+    php -r "if (hash_file('sha384', 'composer-setup.php') === 'dac665fdc30fdd8ec78b38b9800061b4150413ff2e3b6f88543c636f7cd84f6db9189d43a81e5503cda447da73c7e5b6') { echo 'Installer verified'.PHP_EOL; } else { echo 'Installer corrupt'.PHP_EOL; unlink('composer-setup.php'); exit(1); }"
 
-# Install Symfony dependencies
-RUN composer install --optimize-autoloader
+# Run the Composer installer script
+RUN php composer-setup.php
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+# Remove the Composer installer script
+RUN php -r "unlink('composer-setup.php');"
 
-# Expose port 80
-EXPOSE 80
-
-# Start Apache server
-CMD ["apache2-foreground"]
-
-COPY apache.conf /etc/apache2/sites-available/000-default.conf
-RUN a2dissite 000-default
-RUN a2ensite 000-default
+# Move the Composer binary to a directory in the system PATH
+RUN mv composer.phar /usr/local/bin/composer

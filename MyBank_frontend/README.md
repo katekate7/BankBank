@@ -33,7 +33,7 @@ Start by cloning the project repository to your local machine:
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/katekate77/MyBank
+    git clone https://github.com/katekate7/BankBank
     ```
 
 2. Change into the project directory:
